@@ -1,0 +1,54 @@
+# This file is the structure creation command file #
+# This is a commented out line 
+
+sde:clear
+
+#### Dimensions parameters (Default is um) ####
+
+(define Lp 0.3) 
+(define Lo 0.003)
+(define h 0.5)
+(define Na @Na@)
+
+
+#### Regions ####
+
+(sdegeo:create-rectangle (position 0 0 0) (position Lp h 0) "Silicon" "p_region")
+(sdegeo:create-rectangle (position 0 0 0) (position (* -1 Lo) h 0) "SiO2" "oxide_region")
+
+
+#### Doping #####
+
+(sdedr:define-constant-profile "p_doping" "BoronActiveConcentration" Na)
+(sdedr:define-constant-profile-region "p_doping_profile" "p_doping" "p_region")
+
+
+#### Contacts #####
+
+(sdegeo:define-contact-set "p_contact" 4.0 (color:rgb 1.0 0.0 0.0 ) "##")
+(sdegeo:define-contact-set "oxide_contact" 4.0 (color:rgb 0.0 1.0 0.0 ) "||")
+
+(sdegeo:define-2d-contact (find-edge-id (position Lp (/ h 2) 0)) "p_contact")
+(sdegeo:define-2d-contact (find-edge-id (position (* -1 Lo) (/ h 2) 0)) "oxide_contact")
+
+(sde:save-model "MosCap")
+
+
+#### Global course mesh ####
+
+(sdedr:define-refeval-window "RefWin.Global" "Rectangle" (position Lp h 0) (position (* -1 Lp) 0 0))
+(sdedr:define-refinement-size "RefDef.Global" (/ Lp 100) (/ h 20) (/ Lp 100) (/ h 20) 1 1)
+(sdedr:define-refinement-placement "Place.Global" "RefDef.Global" "RefWin.Global" )
+
+
+#### Junction fine mesh ####
+
+(sdedr:define-refeval-window "RefWin.Dep" "Rectangle" (position (/ Lp 3) h 0) (position (* -1 Lo) 0 0))
+(sdedr:define-refinement-size "RefDef.Dep" (/ Lo 3) (/ h 50) (/ Lo 3) (/ h 50) 1 1)
+(sdedr:define-refinement-placement "Place.Dep" "RefDef.Dep" "RefWin.Dep" )
+
+
+#### Generate mesh ####
+
+(sde:build-mesh "snmesh" "" "MosCap")
+
