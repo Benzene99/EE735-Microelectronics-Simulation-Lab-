@@ -1,0 +1,34 @@
+`include "disciplines.vams"
+`include "constants.vams"
+module simple_NMOS(d,g,s,b);
+inout d,g,s,b; // inout TERMINALS
+electrical d ,g ,s ,b ; //input-output nodes
+parameter real W=1e-5 from [0:inf]; // width of MOSFET
+parameter real L=1e-5 from [0:inf]; // Length of MOSFET
+parameter real Vth=0.6 from [0:inf]; // Threshold voltage
+parameter real mu=1400 from [0:inf];
+parameter real NA=1e17 from [1e13:1e22]; // Doping
+
+parameter real TOX=20e-7; // Oxide Thickness
+parameter real VSB=0.0; //Body-Bias
+parameter real P_EPSOX=3.9*8.85e-14;
+parameter real P_EPSSI=11.7*8.85e-14;
+parameter real COX=P_EPSOX/TOX from [0:inf];
+real PHI,GAMMA,PHI_F,VT;
+real Id, Vgs, Vds;
+real Ni=1e10;
+real q=1.6e-19;
+analog
+begin
+if (V(g,s) > Vth) 
+begin
+	if(V(d,s) >= V(g,s)-Vth)
+		I(d,s) <+ (mu*COX/(2*L))*(V(g,s)-Vth)**2;
+		
+	else
+		I(d,s) <+ (mu*COX/L)*(((V(g,s)-Vth)*V(d,s))-(V(d,s)*V(d,s)/2));
+	end
+end
+endmodule
+
+

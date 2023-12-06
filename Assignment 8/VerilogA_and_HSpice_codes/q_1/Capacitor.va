@@ -1,0 +1,11 @@
+`include "disciplines.vams"
+module simple_capacitor(p,n);
+inout p,n;
+electrical p,n;
+parameter real C=1e-6 from [0.0:inf); //default value
+real q;
+analog begin
+q=C*V(p,n);
+I(p,n)<+ ddt(q);
+end
+endmodule
