@@ -1,0 +1,266 @@
+*********************1.	CB Input Characteristics
+
+
+
+Electrode {
+	{ Name= "E"   Voltage= 0.0 }
+	{ Name= "B"      Voltage= 0.0 }
+	{ Name= "C" Voltage= 0.0 }
+}
+
+File {
+	* Input Files
+	Grid= "9_npn_final_structure_fps.tdr"
+	Parameter= "@parameter@"
+	* Output Files
+	Current= "@plot@"
+	Plot= "@tdrdat@"
+	Output= "@log@"
+}
+
+Physics {
+	Hydrodynamic
+	EffectiveIntrinsicDensity(BandGapNarrowing(Slotboom))
+	Mobility (
+		DopingDependence
+		HighFieldSaturation
+	)
+	Recombination (
+		Auger
+		SRH(DopingDependence)
+		Avalanche(Okuto)
+	)
+}
+
+
+
+Solve {
+* Initial Guess
+	Coupled ( Iterations= 100 ) { Poisson }
+	Coupled { Poisson Electron Hole }
+
+* Initial base ramp
+	Quasistationary (
+		InitialStep= 1e-5 Increment= 1.5
+		Minstep= 1e-8 MaxStep= 0.2
+		Goal { Name= "C" Voltage= 1.5 }
+	){ Coupled { Poisson Electron Hole } }
+
+* Base and Collector ramp
+
+	NewCurrentFile="IB0_"
+	Quasistationary (
+		InitialStep= 1.0e-3 Increment= 1.5
+		Minstep= 1e-6 MaxStep= 0.04
+		Goal { Name= "E"      Voltage= -1.5 }
+	){ Coupled { Poisson Electron Hole  }
+		CurrentPlot ( Time= (Range= (0.0 1.0) intervals= 30))
+		Plot(FilePrefix= "n@node@_snap" Time=(0.7))
+	}
+}
+
+2.	CB output Characteristics
+
+
+
+Electrode {
+	{ Name= "E"   Voltage= 0.0 }
+	{ Name= "B"      Voltage= 0.0 }
+	{ Name= "C" Voltage= 0.0 }
+}
+
+File {
+	* Input Files
+	Grid= "9_npn_final_structure_fps.tdr"
+	Parameter= "@parameter@"
+	* Output Files
+	Current= "@plot@"
+	Plot= "@tdrdat@"
+	Output= "@log@"
+}
+
+Physics {
+	Hydrodynamic
+	EffectiveIntrinsicDensity(BandGapNarrowing(Slotboom))
+	Mobility (
+		DopingDependence
+		HighFieldSaturation
+	)
+	Recombination (
+		Auger
+		SRH(DopingDependence)
+		Avalanche(Okuto)
+	)
+}
+
+
+
+Solve {
+
+  Coupled(Iterations=100){ Poisson }
+  Coupled{ Poisson Electron Hole }
+  
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="E" Voltage=-1.5 }
+  ){ Coupled {Poisson Electron Hole } }
+  
+  Set( "E" mode current ) 
+  
+
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="E" Current=1e-3 }
+  ){ Coupled {Poisson Electron Hole }  
+    Plot(FilePrefix="n@node@_IE" Time=(0.0;0.5;1) NoOverWrite )
+  }
+  
+  NewCurrentPrefix="IE0_"
+  Load(FilePrefix="n@node@_IE_0000")
+  
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="C" Voltage=10 }
+  ){ Coupled {Poisson Electron Hole}
+
+  }
+  
+
+}
+
+
+*****************3.	CE Input Characteristics
+
+
+
+Electrode {
+	{ Name= "E"   Voltage= 0.0 }
+	{ Name= "B"      Voltage= 0.0 }
+	{ Name= "C" Voltage= 0.0 }
+}
+
+File {
+	* Input Files
+	Grid= "9_npn_final_structure_fps.tdr"
+	Parameter= "@parameter@"
+	* Output Files
+	Current= "@plot@"
+	Plot= "@tdrdat@"
+	Output= "@log@"
+}
+
+Physics {
+	Hydrodynamic
+	EffectiveIntrinsicDensity(BandGapNarrowing(Slotboom))
+	Mobility (
+		DopingDependence
+		HighFieldSaturation
+	)
+	Recombination (
+		Auger
+		SRH(DopingDependence)
+		Avalanche(Okuto)
+	)
+}
+
+
+Solve {
+* Initial Guess
+	Coupled ( Iterations= 100 ) { Poisson }
+	Coupled { Poisson Electron Hole }
+
+* Initial base ramp
+	Quasistationary (
+		InitialStep= 1e-5 Increment= 1.5
+		Minstep= 1e-8 MaxStep= 0.2
+		Goal { Name= "C" Voltage= @VCE@ }
+	){ Coupled { Poisson Electron Hole } }
+
+* Base and Collector ramp
+
+	NewCurrentFile="IB0_"
+	Quasistationary (
+		InitialStep= 1.0e-3 Increment= 1.5
+		Minstep= 1e-6 MaxStep= 0.04
+		Goal { Name= "B"      Voltage= 1.5 }
+	){ Coupled { Poisson Electron Hole  }
+		CurrentPlot ( Time= (Range= (0.0 1.0) intervals= 30))
+		Plot(FilePrefix= "n@node@_snap" Time=(1.0))
+	}
+} 
+
+
+*******************4.	CE output Characteristics
+
+
+
+Electrode {
+	{ Name= "E"   Voltage= 0.0 }
+	{ Name= "B"      Voltage= 0.0 }
+	{ Name= "C" Voltage= 0.0 }
+}
+
+File {
+	* Input Files
+	Grid= "9_npn_final_structure_fps.tdr"
+	Parameter= "@parameter@"
+	* Output Files
+	Current= "@plot@"
+	Plot= "@tdrdat@"
+	Output= "@log@"
+}
+
+Physics {
+	Hydrodynamic
+	EffectiveIntrinsicDensity(BandGapNarrowing(Slotboom))
+	Mobility (
+		DopingDependence
+		HighFieldSaturation
+	)
+	Recombination (
+		Auger
+		SRH(DopingDependence)
+		Avalanche(Okuto)
+	)
+}
+
+
+
+Solve {
+
+  Coupled(Iterations=100){ Poisson }
+  Coupled{ Poisson Electron Hole }
+  
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="B" Voltage=1.5 }
+  ){ Coupled {Poisson Electron Hole } }
+  
+  Set( "B" mode current ) 
+  
+
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="B" Current=@IB@ }
+  ){ Coupled {Poisson Electron Hole }  
+    Plot(FilePrefix="n@node@_IB" Time=(0.0;0.5;1) NoOverWrite )
+  }
+  
+  NewCurrentPrefix="IB0_"
+  Load(FilePrefix="n@node@_IB_0002")
+  
+  Quasistationary ( 
+    InitialStep=0.01 Increment=1.3
+    MaxStep =0.2 MinStep = 1e-6 
+    Goal{ Name="C" Voltage=10 }
+  ){ Coupled {Poisson Electron Hole}
+
+  }
+  
+
+}

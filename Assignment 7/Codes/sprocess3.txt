@@ -1,0 +1,85 @@
+# 1D Grid definition in x direction
+line x location= 0.0 spacing=1.0<nm> tag=SiTop
+line x location=50<nm> spacing=10<nm>
+line x location=100<nm> spacing=20<nm>
+
+line x location=600<nm> spacing=50<nm> tag=SiBottom
+
+# 1D Grid definition in y direction
+line y location=0.0 spacing=50<nm> tag=Left
+line y location=1000<nm> spacing=50<nm> tag=Right
+
+
+
+# Initial simulation domain
+region Silicon xlo=SiTop xhi=SiBottom ylo=Left yhi=Right
+# Initial doping concentration in the region defined
+init concentration=1e+16<cm-3> field=Phosphorus wafer.orient=111
+# Global Mesh settings for automatic meshing in newly generated layers.
+#This strategy is used when there is change in initial geometry due to
+#deposit, oxidation and etching
+mgoals min.normal.size =2<nm> normal.growth.ratio =1.4 accuracy=1e-5
+
+
+deposit material= {Oxide} type=isotropic time=1 rate= {0.15}
+grid remesh
+mask name=implant_mask segments= {0<um> 0.2<um> 0.8<um> 1.0<um> }
+
+etch material= {oxide} type=anisotropic time=1 rate= {0.17} mask=implant_mask
+grid remesh
+
+#Save the structure file after etching
+struct tdr =1_npn_oxide_etch_before_implant;
+
+refinebox Silicon min= {0.0 0.4} max= {0.2 0.6}\
+xrefine= {0.01 0.01 0.01} yrefine = {0.01 0.01 0.01}
+grid remesh
+
+implant Boron energy=18<keV> dose=1.8e13<cm-2> tilt = 0
+
+diffuse temperature=1060<C> time=1.5<s>
+#save the structure after implantation and diffusion
+struct tdr =2_npn_after_implant_diffusion
+
+etch material= {Oxide} type=isotropic time= 1 rate= {0.17}
+grid remesh
+#save structure file after oxide etch
+struct tdr =3_npn_after_imp_diff_oxide_etch;
+deposit material= {Oxide} type=isotropic time=1 rate= {0.15}
+grid remesh
+mask name=implant_mask segments= {0<um> 0.3<um> 0.7<um> 1.0<um> }
+struct tdr =4_npn_after_imp;
+etch material= {oxide} type=anisotropic time=1 rate= {0.17} mask=implant_mask
+grid remesh
+
+#Save the structure file after etching
+struct tdr =5_npn_oxide_etch_before_implant;
+
+refinebox Silicon min= {0.0 0.4} max= {0.2 0.6}\
+xrefine= {0.01 0.01 0.01} yrefine = {0.01 0.01 0.01}
+grid remesh
+
+
+implant Phosphorus energy=20<keV> dose=0.2e15<cm-2> tilt = 0
+
+diffuse temperature=1060<C> time=2<s>
+struct tdr =6_npn_after_implant_diffusion
+etch material= {Oxide} type=isotropic time= 1 rate= {0.17}
+grid remesh
+#save structure file after oxide etch
+struct tdr =7_npn_after_imp_diff_oxide_etch;
+deposit material= {Aluminum} type=isotropic time=1 rate= {0.07}
+grid remesh
+
+mask name=contacts_mask segments= {0.45<um> 0.55<um> 0.76<um> 0.83<um> 0.87<um> 0.97<um> }
+struct tdr = 8_npn_aftercontact
+etch material= {Aluminum} type=anisotropic time=1 rate= {0.08} mask=contacts_mask
+
+grid remesh
+contact name = "E" box Aluminum adjacent.material = Ambient\
+xlo= -0.071 xhi= -0.069 ylo = 0.45 yhi = 0.55
+contact name = "B" box Aluminum adjacent.material = Ambient\
+xlo= -0.071 xhi= -0.069 ylo = 0.76 yhi = 0.83
+contact name = "C" box Aluminum adjacent.material = Ambient\
+xlo= -0.071 xhi= -0.069 ylo = 0.87 yhi = 0.97
+struct tdr = 9_npn_final_structure
